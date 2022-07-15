@@ -29,6 +29,8 @@ namespace ToDoApi
             services.AddDbContext<TodoContext>(opt =>
                 opt.UseInMemoryDatabase("ToDoLists"));
             services.AddScoped<IToDoListRepository, ToDoListRepository>();
+            services.AddScoped<IToDoRepository, ToDoRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

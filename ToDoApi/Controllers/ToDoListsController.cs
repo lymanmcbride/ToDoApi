@@ -16,115 +16,100 @@ namespace ToDoApi.Controllers
     {
         private readonly TodoContext _context;
         private readonly IToDoListRepository _toDoListRepository;
+        private readonly IToDoRepository _toDoRepository;
 
-        public ToDoListsController(TodoContext context, IToDoListRepository toDoListRepository)
+        public ToDoListsController(TodoContext context, IToDoListRepository toDoListRepository, IToDoRepository toDoRepository)
         {
             _context = context;
             _toDoListRepository = toDoListRepository;
+            _toDoRepository = toDoRepository;
             // TestData.TestData.AddTestData(_context);
         }
+        
         // GET: api/ToDoLists
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ToDoList>>> GetToDoLists()
+        public ActionResult<IEnumerable<ToDoList>> GetToDoLists()
         {
-            return await _context.TodoLists.Include(list => list.ToDoItems).ToArrayAsync();
+            return _toDoListRepository.GetAllLists();
         }
 
         // GET: api/ToDoLists/5
         [HttpGet("{id}")]
         public ActionResult<ToDoList> GetTodoList(long id)
         {
-            return _toDoListRepository.GetToDoList(id);
+            return _toDoListRepository.GetList(id);
         }
 
         // POST: api/ToDoLists
         [HttpPost]
-        public async Task<ActionResult<ToDoList>> Post([FromBody] ToDoList toDoList)
+        public ActionResult<ToDoList> AddToDoList([FromBody] ToDoList toDoList)
         {
-            _context.TodoLists.Add(toDoList);
-            await _context.SaveChangesAsync();
-
+            _toDoListRepository.AddList(toDoList);
+            
             return CreatedAtAction(nameof(GetTodoList), new { id = toDoList.Id }, toDoList);
         }
 
-        // PUT: api/ToDoLists/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ToDoLists/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
-        
         // GET: api/ToDoLists/todos
         [HttpGet("todos")]
         public async Task<ActionResult<IEnumerable<ToDoItem>>> GetToDoItems()
         {
-            return await _context.ToDoItems.ToArrayAsync();
+            return await _toDoRepository.GetAllToDos();
         }
         
         // GET: api/ToDoLists/{id}/todos
         [HttpGet("{id}/todos")]
         public ActionResult<IEnumerable<ToDoItem>> GetToDoItems(int id)
         {
-            var list = _toDoListRepository.GetToDoList(id);
-
-            return list.ToDoItems;
+            return _toDoListRepository.GetList(id).ToDoItems;
         }
         // POST: api/ToDoLists/{id}/todos
         [HttpPost("{listId}/todos")]
         public ActionResult<IEnumerable<ToDoItem>> AddToDoItem(long listId, [FromBody] ToDoItem toDoItem)
         {
-            var list = _toDoListRepository.GetToDoList(listId);
-            list.ToDoItems.Add(toDoItem);
-            _context.Entry(list).State = EntityState.Modified;
-            _context.SaveChanges();
+            var associatedList = _toDoListRepository.GetList(listId);
+            associatedList.ToDoItems.Add(toDoItem);
+            _toDoListRepository.SaveList(associatedList);
 
-            return CreatedAtAction(nameof(GetTodoList), new { id = list.Id }, list);
+            return CreatedAtAction(nameof(GetTodoList), new { id = associatedList.Id }, associatedList);
         }
         
         // POST: api/ToDoLists/todos
         [HttpPost("todos")]
-        public ActionResult<IEnumerable<ToDoItem>> AddToDoItem([FromBody] ToDoItem toDoItem)
+        public ActionResult<IEnumerable<ToDoItem>> AddToDoItem([FromBody] ToDoItem toDoItemDto)
         {
-            _context.ToDoItems.Add(toDoItem);
-            _context.SaveChanges();
-
-            return CreatedAtAction(nameof(GetToDoItems), toDoItem);
+            _toDoRepository.CreateToDo(toDoItemDto);
+            
+            return CreatedAtAction(nameof(GetToDoItems), toDoItemDto);
         }
         
-        // POST: api/ToDoLists/todos/{id}
+        // PUT: api/ToDoLists/todos/{id}/name
         [HttpPut("todos/{id}/name")]
         public ActionResult<IEnumerable<ToDoItem>> EditToDoLabel(long id, [FromBody] ToDoItem toDoItemDto)
         {
-            var toDoItem = _context.ToDoItems.Find(id);
+            ToDoItem toDoItem = _toDoRepository.GetTodo(id);
             toDoItem.Name = toDoItemDto.Name;
-            _context.SaveChanges();
+            _toDoRepository.SaveToDo(toDoItem);
 
             return Ok(new {message = "To Do Updated", content = toDoItem});
         }
         
-        // POST: api/ToDoLists/todos/{id}
+        // PUT: api/ToDoLists/todos/{id}/iscomplete
         [HttpPut("todos/{id}/iscomplete")]
         public ActionResult<IEnumerable<ToDoItem>> EditToggle(long id, [FromBody] ToDoItem toDoItemDto)
         {
-            var toDoItem = _context.ToDoItems.Find(id);
+            ToDoItem toDoItem = _toDoRepository.GetTodo(id);
             toDoItem.IsComplete = toDoItemDto.IsComplete;
-            _context.SaveChanges();
+            _toDoRepository.SaveToDo(toDoItem);
 
             return Ok(new {message = "To Do Updated", content = toDoItem});
         }
         
-        // POST: api/ToDoLists/todos/{id}
+        // DELETE: api/ToDoLists/todos/{id}
         [HttpDelete("todos/{id}")]
         public ActionResult<IEnumerable<ToDoItem>> DeleteToggle(long id)
         {
-            var toDoItem = _context.ToDoItems.Find(id);
-            _context.ToDoItems.Remove(toDoItem);
-            _context.SaveChanges();
+            ToDoItem toDoItem = _toDoRepository.GetTodo(id);
+            _toDoRepository.DeleteToDo(toDoItem);
 
             return Ok(new {message = "To Do removed", content = toDoItem});
         }

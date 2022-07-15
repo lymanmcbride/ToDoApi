@@ -1,9 +1,14 @@
+using System.Threading.Tasks;
 using ToDoApi.Models;
 
 namespace ToDoApi.Repository.Interfaces
 {
     public interface IToDoListRepository
     {
-        public ToDoList GetToDoList(long id);
+        public ToDoList GetList(long id);
+        public ToDoList[] GetAllLists();
+        public void AddList(ToDoList toDoList);
+        public void SaveList(ToDoList toDoList);
+
     }
 }
