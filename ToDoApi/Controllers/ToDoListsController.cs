@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToDoApi.Models;
 using ToDoApi.Repository.Interfaces;
+using ToDoApi.Services.Interfaces;
 
 namespace ToDoApi.Controllers
 {
@@ -17,12 +18,14 @@ namespace ToDoApi.Controllers
         private readonly TodoContext _context;
         private readonly IToDoListRepository _toDoListRepository;
         private readonly IToDoRepository _toDoRepository;
+        private readonly IToDoService _toDoService;
 
-        public ToDoListsController(TodoContext context, IToDoListRepository toDoListRepository, IToDoRepository toDoRepository)
+        public ToDoListsController(TodoContext context, IToDoListRepository toDoListRepository, IToDoRepository toDoRepository, IToDoService toDoService)
         {
             _context = context;
             _toDoListRepository = toDoListRepository;
             _toDoRepository = toDoRepository;
+            _toDoService = toDoService;
             // TestData.TestData.AddTestData(_context);
         }
         
@@ -44,7 +47,7 @@ namespace ToDoApi.Controllers
         [HttpPost]
         public ActionResult<ToDoList> AddToDoList([FromBody] ToDoList toDoList)
         {
-            _toDoListRepository.AddList(toDoList);
+            _toDoListRepository.CreateList(toDoList);
             
             return CreatedAtAction(nameof(GetTodoList), new { id = toDoList.Id }, toDoList);
         }
@@ -64,11 +67,9 @@ namespace ToDoApi.Controllers
         }
         // POST: api/ToDoLists/{id}/todos
         [HttpPost("{listId}/todos")]
-        public ActionResult<IEnumerable<ToDoItem>> AddToDoItem(long listId, [FromBody] ToDoItem toDoItem)
+        public ActionResult<IEnumerable<ToDoItem>> AddToDoItemToList(long listId, [FromBody] ToDoItem toDoItemDto)
         {
-            var associatedList = _toDoListRepository.GetList(listId);
-            associatedList.ToDoItems.Add(toDoItem);
-            _toDoListRepository.SaveList(associatedList);
+            ToDoList associatedList = _toDoService.AddToDoToList(listId, toDoItemDto);
 
             return CreatedAtAction(nameof(GetTodoList), new { id = associatedList.Id }, associatedList);
         }
@@ -86,9 +87,11 @@ namespace ToDoApi.Controllers
         [HttpPut("todos/{id}/name")]
         public ActionResult<IEnumerable<ToDoItem>> EditToDoLabel(long id, [FromBody] ToDoItem toDoItemDto)
         {
-            ToDoItem toDoItem = _toDoRepository.GetTodo(id);
-            toDoItem.Name = toDoItemDto.Name;
-            _toDoRepository.SaveToDo(toDoItem);
+            if (id != toDoItemDto.Id)
+            {
+                throw new Exception("Ids must match");
+            }
+            ToDoItem toDoItem = _toDoService.EditToDoLabel(toDoItemDto);
 
             return Ok(new {message = "To Do Updated", content = toDoItem});
         }
@@ -97,9 +100,11 @@ namespace ToDoApi.Controllers
         [HttpPut("todos/{id}/iscomplete")]
         public ActionResult<IEnumerable<ToDoItem>> EditToggle(long id, [FromBody] ToDoItem toDoItemDto)
         {
-            ToDoItem toDoItem = _toDoRepository.GetTodo(id);
-            toDoItem.IsComplete = toDoItemDto.IsComplete;
-            _toDoRepository.SaveToDo(toDoItem);
+            if (id != toDoItemDto.Id)
+            {
+                throw new Exception("Ids must match");
+            }
+            ToDoItem toDoItem = _toDoService.EditToDoToggle(toDoItemDto);
 
             return Ok(new {message = "To Do Updated", content = toDoItem});
         }
@@ -108,8 +113,7 @@ namespace ToDoApi.Controllers
         [HttpDelete("todos/{id}")]
         public ActionResult<IEnumerable<ToDoItem>> DeleteToggle(long id)
         {
-            ToDoItem toDoItem = _toDoRepository.GetTodo(id);
-            _toDoRepository.DeleteToDo(toDoItem);
+            ToDoItem toDoItem = _toDoService.DeleteToDoItemBasedOnId(id);
 
             return Ok(new {message = "To Do removed", content = toDoItem});
         }

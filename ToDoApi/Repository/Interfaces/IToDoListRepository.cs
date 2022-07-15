@@ -7,7 +7,7 @@ namespace ToDoApi.Repository.Interfaces
     {
         public ToDoList GetList(long id);
         public ToDoList[] GetAllLists();
-        public void AddList(ToDoList toDoList);
+        public void CreateList(ToDoList toDoList);
         public void SaveList(ToDoList toDoList);
 
     }

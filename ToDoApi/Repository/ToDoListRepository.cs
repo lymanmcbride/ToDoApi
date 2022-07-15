@@ -27,7 +27,7 @@ namespace ToDoApi.Repository
             return _context.TodoLists.Include(list => list.ToDoItems).ToArray();
         }
 
-        public async void AddList(ToDoList toDoList)
+        public async void CreateList(ToDoList toDoList)
         {
             _context.TodoLists.Add(toDoList);
             await _context.SaveChangesAsync();

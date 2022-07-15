@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using ToDoApi.Models;
 using ToDoApi.Repository;
 using ToDoApi.Repository.Interfaces;
+using ToDoApi.Services;
+using ToDoApi.Services.Interfaces;
 
 namespace ToDoApi
 {
@@ -30,6 +32,7 @@ namespace ToDoApi
                 opt.UseInMemoryDatabase("ToDoLists"));
             services.AddScoped<IToDoListRepository, ToDoListRepository>();
             services.AddScoped<IToDoRepository, ToDoRepository>();
+            services.AddScoped<IToDoService, ToDoService>();
 
         }
 
