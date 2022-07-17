@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using ToDoApi.Models;
@@ -19,6 +20,18 @@ namespace ToDoApi.Repository
         {
             var db = _context.TodoLists.Include(list => list.ToDoItems).ToArray();
             return db.FirstOrDefault(list => list.Id == id);
+        }
+        
+        public List<ToDoItem> GetToDosAssociatedWithLists()
+        {
+            List<ToDoItem> toDoItems = new List<ToDoItem>();
+            var lists = GetAllLists();
+            foreach (ToDoList toDoList in lists)
+            {
+                toDoItems.AddRange(toDoList.ToDoItems);
+            }
+
+            return toDoItems;
         }
 
         public ToDoList[] GetAllLists()

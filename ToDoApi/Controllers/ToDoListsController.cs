@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ToDoApi.Middleware;
 using ToDoApi.Models;
 using ToDoApi.Repository.Interfaces;
@@ -53,14 +50,14 @@ namespace ToDoApi.Controllers
 
         // GET: api/ToDoLists/todos
         [HttpGet("todos")]
-        public async Task<ActionResult<IEnumerable<ToDoItem>>> GetToDoItems()
+        public ActionResult<IEnumerable<ToDoItem>> GetToDoItems()
         {
-            return await _toDoRepository.GetAllToDos();
+            return _toDoListRepository.GetToDosAssociatedWithLists();
         }
-        
+
         // GET: api/ToDoLists/{id}/todos
         [HttpGet("{id}/todos")]
-        public ActionResult<IEnumerable<ToDoItem>> GetToDoItems(int id)
+        public ActionResult<IEnumerable<ToDoItem>> GetToDoItemsForSingleList(int id)
         {
             return _toDoListRepository.GetList(id).ToDoItems;
         }
@@ -72,16 +69,7 @@ namespace ToDoApi.Controllers
 
             return CreatedAtAction(nameof(GetTodoList), new { id = associatedList.Id }, associatedList);
         }
-        
-        // POST: api/ToDoLists/todos
-        [HttpPost("todos")]
-        public ActionResult<IEnumerable<ToDoItem>> AddToDoItem([FromBody] ToDoItem toDoItemDto)
-        {
-            _toDoRepository.CreateToDo(toDoItemDto);
-            
-            return CreatedAtAction(nameof(GetToDoItems), toDoItemDto);
-        }
-        
+
         // PUT: api/ToDoLists/todos/{id}/name
         [HttpPut("todos/{id}/name")]
         public ActionResult<IEnumerable<ToDoItem>> EditToDoLabel(long id, [FromBody] ToDoItem toDoItemDto)

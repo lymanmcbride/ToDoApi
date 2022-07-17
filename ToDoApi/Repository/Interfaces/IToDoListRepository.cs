@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ToDoApi.Models;
 
@@ -9,6 +10,7 @@ namespace ToDoApi.Repository.Interfaces
         public ToDoList[] GetAllLists();
         public void CreateList(ToDoList toDoList);
         public void SaveList(ToDoList toDoList);
+        public List<ToDoItem> GetToDosAssociatedWithLists();
 
     }
 }

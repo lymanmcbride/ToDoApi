@@ -4,7 +4,7 @@ using ToDoApi.Repository.Exceptions;
 
 namespace ToDoApi.Middleware
 {
-    public class ToDoListsExceptionFilterAttribute : ToDoAppExceptionFilterAttribute
+    public class ToDosExceptionFilter : ToDoAppExceptionFilterAttribute
     {
         public override void OnException(ExceptionContext context)
         {

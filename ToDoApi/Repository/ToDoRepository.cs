@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ToDoApi.Models;
@@ -24,7 +25,6 @@ namespace ToDoApi.Repository
         {
             _context.ToDoItems.Add(toDoItem);
             int numberOfEntriesSaved = _context.SaveChanges();
-            numberOfEntriesSaved = 0;
             VerifySuccessfulSave(numberOfEntriesSaved, toDoItem);
         }
 
