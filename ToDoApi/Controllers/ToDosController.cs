@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using ToDoApi.Middleware;
 using ToDoApi.Models;
 using ToDoApi.Repository.Interfaces;
-using ToDoApi.Services.Interfaces;
 
 namespace ToDoApi.Controllers
 {
