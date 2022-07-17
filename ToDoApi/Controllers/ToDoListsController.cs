@@ -5,28 +5,27 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ToDoApi.Middleware;
 using ToDoApi.Models;
 using ToDoApi.Repository.Interfaces;
 using ToDoApi.Services.Interfaces;
 
 namespace ToDoApi.Controllers
 {
+    [ToDoListsExceptionFilter]
     [Route("api/[controller]")]
     [ApiController]
     public class ToDoListsController : ControllerBase
     {
-        private readonly TodoContext _context;
         private readonly IToDoListRepository _toDoListRepository;
         private readonly IToDoRepository _toDoRepository;
         private readonly IToDoService _toDoService;
 
-        public ToDoListsController(TodoContext context, IToDoListRepository toDoListRepository, IToDoRepository toDoRepository, IToDoService toDoService)
+        public ToDoListsController(IToDoListRepository toDoListRepository, IToDoRepository toDoRepository, IToDoService toDoService)
         {
-            _context = context;
             _toDoListRepository = toDoListRepository;
             _toDoRepository = toDoRepository;
             _toDoService = toDoService;
-            // TestData.TestData.AddTestData(_context);
         }
         
         // GET: api/ToDoLists
@@ -37,7 +36,7 @@ namespace ToDoApi.Controllers
         }
 
         // GET: api/ToDoLists/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:long}")]
         public ActionResult<ToDoList> GetTodoList(long id)
         {
             return _toDoListRepository.GetList(id);

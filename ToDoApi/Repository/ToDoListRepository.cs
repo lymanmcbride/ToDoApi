@@ -1,8 +1,7 @@
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ToDoApi.Models;
+using ToDoApi.Repository.Exceptions;
 using ToDoApi.Repository.Interfaces;
 
 namespace ToDoApi.Repository
@@ -30,13 +29,23 @@ namespace ToDoApi.Repository
         public async void CreateList(ToDoList toDoList)
         {
             _context.TodoLists.Add(toDoList);
-            await _context.SaveChangesAsync();
+            var numberOfEntriesSaved = await _context.SaveChangesAsync();
+            VerifySuccessfulSave(numberOfEntriesSaved);
         }
 
         public void SaveList(ToDoList toDoList)
         {
             _context.Entry(toDoList).State = EntityState.Modified;
-            _context.SaveChanges();
+            int numberOfEntriesSaved = _context.SaveChanges();
+            VerifySuccessfulSave(numberOfEntriesSaved);
+        }
+        
+        private static void VerifySuccessfulSave(int numberOfEntriesSaved)
+        {
+            if (numberOfEntriesSaved < 1)
+            {
+                throw new ListDatabaseAccessException("Could not save entry.");
+            }
         }
     }
 }

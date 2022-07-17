@@ -6,11 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using ToDoApi.Models;
 using ToDoApi.Repository;
 using ToDoApi.Repository.Interfaces;
 using ToDoApi.Services;
 using ToDoApi.Services.Interfaces;
+using ToDoApi.TestData;
 
 namespace ToDoApi
 {
@@ -37,8 +39,10 @@ namespace ToDoApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, TodoContext context)
         {
+            TestDataCreator.AddTestData(context);
+ 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

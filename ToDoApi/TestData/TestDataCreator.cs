@@ -3,7 +3,7 @@ using ToDoApi.Models;
 
 namespace ToDoApi.TestData
 {
-    public static class TestData
+    public static class TestDataCreator
     {
         public static void AddTestData(TodoContext context)
         {
